@@ -1,6 +1,7 @@
 import connectDb from "@/lib/db";
 import User from "@/model/user.model";
 import bcrypt from "bcryptjs";
+import { data } from "motion/react-client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -22,7 +23,8 @@ export async function POST(req: NextRequest) {
         const user = await User.create({
             name, email, password: hashPassword
         })
-        return NextResponse.json({ message: "user created successfully" }, { status: 201 })
+
+        return NextResponse.json({ message: "user created successfully",data:user }, { status: 201 })
 
     }
     catch (err) {
