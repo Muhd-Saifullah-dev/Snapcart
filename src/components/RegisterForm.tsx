@@ -17,6 +17,7 @@ import googleImage from '@/assets/pngwing.com.png';
 import Image from 'next/image';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 type propType = {
   previousStep: (s: number) => void;
 };
@@ -151,7 +152,7 @@ function RegisterForm({ previousStep }: propType) {
           OR
           <span className="flex-1 h-px bg-gray-400"></span>
         </div>
-        <button className="w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duration-200">
+        <button type='button' className="w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duration-200" onClick={()=>signIn("google")}>
           <Image alt="google image" src={googleImage} width={20} height={20} />
           Continue with google
         </button>
