@@ -4,6 +4,7 @@ import connectDb from "./lib/db"
 import User from "./model/user.model"
 import bcrypt from "bcryptjs"
 import Google from "next-auth/providers/google"
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
    Credentials({
@@ -21,6 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
         const isMatched=await bcrypt.compare(password,user.password)
         if(!isMatched){
+       
             throw new Error("Invalid password")
         }
         return{

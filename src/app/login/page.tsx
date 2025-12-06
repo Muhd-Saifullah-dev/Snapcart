@@ -7,6 +7,7 @@ import Image from 'next/image'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
+import { toast } from 'react-toastify'
 
 function Login() {
 
@@ -17,20 +18,34 @@ function Login() {
   const router = useRouter()
   const session = useSession()
   console.log(session)
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
+const handleLogin = async (e: FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
 
-      await signIn("credentials", {
-        email, password
-      })
-      setLoading(false)
-    } catch (error) {
-      console.log(error)
-      setLoading(false)
+  try {
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (res?.error) {
+      toast.error("Invalid Credentials");
+      setLoading(false);   // <-- ADD THIS
+      return;
     }
+
+    toast.success("Logged in successfully");
+    router.push("/");
+    
+  } catch (error) {
+    console.log(error);
+    setLoading(false);   
   }
+
+  setLoading(false);
+};
+
   return (
     <div className='flex flex-col items-center justify-center min-h-screen px-6 py-10 bg-white relative'>
       <motion.h1 className='text-4xl font-extrabold text-green-700 mb-2'
@@ -102,7 +117,7 @@ function Login() {
           OR
           <span className='flex-1 h-px bg-gray-400'></span>
         </div>
-        <button type='button' onClick={()=>signIn("google")} className='w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duration-200'>
+        <button type='button' onClick={()=>signIn("google",{callbackUrl:"/"})} className='w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duration-200'>
           <Image alt='google image' src={googleImage} width={20} height={20} />
           Continue with google
         </button>
