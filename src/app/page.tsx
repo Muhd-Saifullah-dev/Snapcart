@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import EditRoleMobile from "@/components/EditRoleMobile";
+import Nav from "@/components/Nav";
 import connectDb from "@/lib/db";
 import User from "@/model/user.model";
 import { redirect } from "next/navigation";
@@ -20,8 +21,11 @@ if(inComplete){
 return <EditRoleMobile/>
 }
 
+const plainUser=JSON.parse(JSON.stringify(user))
   return (
-    <h1 className="underline text-3xl">Hello world</h1>
+    <>
+    <Nav user={plainUser}/>
+    </>
   );
 }
 
