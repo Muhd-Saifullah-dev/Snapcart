@@ -4,7 +4,8 @@ import { motion } from 'motion/react';
 import { ArrowRight, Bike, User, UserCog } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 function EditRoleMobile() {
   const [roles, setRoles] = useState([
@@ -14,7 +15,8 @@ function EditRoleMobile() {
   ]);
   const [selectedRole, setSelectedRole] = useState('');
   const [mobile, setMobile] = useState('');
-
+  const router=useRouter()
+  const {update}=useSession()
   const handleEditRoleAndMobile=async()=>{
     try {
         const result=await axios.patch("/api/user/edit-role-mobile",{
@@ -22,8 +24,9 @@ function EditRoleMobile() {
             mobile
         })
         if(result.status===200){
+          await update({role:selectedRole})
             toast.success("information changed successfully")
-           redirect("/")
+          router.push("/")
         }
         console.log("edit role and mobile",result.data)
     } catch (error) {
