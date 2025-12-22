@@ -6,7 +6,7 @@ if (!MONGO_URI) {
   throw new Error("db error");
 }
 
-// fix global variable name
+
 let cached = global.mangoose;
 
 if (!cached) {
