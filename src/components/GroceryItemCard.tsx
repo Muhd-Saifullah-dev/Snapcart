@@ -6,7 +6,11 @@ import Image from 'next/image';
 import { Minus, Plus, PlusCircle, ShoppingCart } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import { addToCart, decreaseQuantity, increaseQuantity } from '@/redux/cartSlice';
+import {
+    addToCart,
+    decreaseQuantity,
+    increaseQuantity,
+} from '@/redux/cartSlice';
 import { useSelector } from 'react-redux';
 
 interface IGrocery {
@@ -72,7 +76,10 @@ function GroceryItemCard({ item }: { item: IGrocery }) {
                         transition={{ duration: 0.3 }}
                         className="mt-4 flex items-center justify-center bg-green-50 border border-green-200 rounded-full py-2 px-4 gap-4"
                     >
-                        <button className="w-7 h-7 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-200 transition-al" onClick={()=>dispatch(decreaseQuantity(item._id))}>
+                        <button
+                            className="w-7 h-7 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-200 transition-al"
+                            onClick={() => dispatch(decreaseQuantity(item._id))}
+                        >
                             {' '}
                             <Minus size={16} className="text-green-700" />{' '}
                         </button>

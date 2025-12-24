@@ -31,8 +31,8 @@ interface IUSER {
     image?: string;
 }
 function Nav({ user }: { user: IUSER }) {
-    const {cartData}=useSelector((state:RootState)=>state.cart)
-    console.log("cartData",cartData)
+    const { cartData } = useSelector((state: RootState) => state.cart);
+    console.log('cartData', cartData);
     const [open, setOpen] = useState(false);
     const profileDropDown = useRef<HTMLDivElement>(null);
     const [searchbarOpen, setSearchBarOpen] = useState(false);
@@ -179,7 +179,7 @@ function Nav({ user }: { user: IUSER }) {
                         >
                             <ShoppingCartIcon className="text-green-600 w-5 h-6" />
                             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow">
-                               {cartData.length} 
+                                {cartData.length}
                             </span>
                         </Link>
                     </>
