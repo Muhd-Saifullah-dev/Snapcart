@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Grocery from './grocery.model';
 
 interface IOrder {
     _id?: mongoose.Types.ObjectId;
@@ -14,7 +13,7 @@ interface IOrder {
             quantity: number;
         },
     ];
-    totalAmount: string;
+    totalAmount: number;
     paymentMethod: 'cod' | 'online';
     address: {
         fullName: string;
@@ -57,6 +56,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
             enum: ['cod', 'online'],
             default: 'cod',
         },
+        totalAmount: Number,
         address: {
             fullAddress: String,
             mobile: String,
