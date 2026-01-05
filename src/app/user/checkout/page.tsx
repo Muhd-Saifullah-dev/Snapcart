@@ -7,11 +7,16 @@ import L, { LatLngExpression } from 'leaflet';
 import {
     ArrowLeft,
     Building,
+    CreditCard,
+    CreditCardIcon,
     Home,
+    Loader2,
+    LocateFixed,
     MapPin,
     Navigation,
     Phone,
     Search,
+    Truck,
     User,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -29,6 +34,9 @@ const markerIcon = new L.Icon({
 function Checkout() {
     const router = useRouter();
     const { userData } = useSelector((state: RootState) => state.user);
+    const { finalTotal, subTotal, deliveryFee } = useSelector(
+        (state: RootState) => state.cart
+    );
     const [address, setAddress] = useState({
         fullName: '',
         mobile: '',
@@ -39,7 +47,8 @@ function Checkout() {
     });
     const [searchquery, setSearchQuery] = useState('');
     const [position, setPosition] = useState<[number, number] | null>(null);
-
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -84,14 +93,6 @@ function Checkout() {
         );
     };
 
-    const handleSearchQuery = async () => {
-        const provider = new OpenStreetMapProvider();
-
-        // search
-        const results = await provider.search({ query: searchquery });
-        console.log('result in search query', results);
-    };
-
     useEffect(() => {
         if (!position) return;
 
@@ -115,6 +116,43 @@ function Checkout() {
 
         return () => clearTimeout(timer);
     }, [position]);
+
+    const handleSearchQuery = async () => {
+        if (!searchquery) return;
+        setSearchLoading(true);
+        try {
+            const res = await fetch(`/api/geocode-search?q=${searchquery}`);
+            const data = await res.json();
+
+            console.log('search result', data);
+            if (!data) return;
+
+            if (data.length > 0) {
+                const lat = Number(data[0].lat);
+                const lon = Number(data[0].lon);
+                setSearchLoading(false);
+                setPosition([lat, lon]);
+            }
+        } catch (err) {
+            console.error('search error', err);
+            setSearchLoading(false);
+        }
+    };
+
+    const handleCurrentLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setPosition([latitude, longitude]);
+                },
+                (err) => {
+                    console.log('location error ', err);
+                },
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            );
+        }
+    };
 
     return (
         <div className="w-[92%] md:w-[80%] mx-auto py-10 relative">
@@ -158,7 +196,7 @@ function Checkout() {
                                 onChange={(e) =>
                                     setAddress((prev) => ({
                                         ...prev,
-                                        fullName: address.fullName,
+                                        fullName: e.target.value,
                                     }))
                                 }
                             />
@@ -175,7 +213,7 @@ function Checkout() {
                                 onChange={(e) =>
                                     setAddress((prev) => ({
                                         ...prev,
-                                        mobile: address.mobile,
+                                        mobile: e.target.value,
                                     }))
                                 }
                                 className="pl-10 w-full border rounded-lg p-3 text-sm bg-gray-50"
@@ -193,7 +231,7 @@ function Checkout() {
                                 onChange={(e) =>
                                     setAddress((prev) => ({
                                         ...prev,
-                                        fullAddress: address.fullAddress,
+                                        fullAddress: e.target.value,
                                     }))
                                 }
                                 className="pl-10 w-full border rounded-lg p-3 text-sm bg-gray-50"
@@ -212,7 +250,7 @@ function Checkout() {
                                     onChange={(e) =>
                                         setAddress((prev) => ({
                                             ...prev,
-                                            city: address.city,
+                                            city: e.target.value,
                                         }))
                                     }
                                     className="pl-10 w-full border rounded-lg p-3 text-sm bg-gray-50"
@@ -227,11 +265,11 @@ function Checkout() {
                                 />
                                 <input
                                     type="text"
-                                    value={address.state}
+                                    value={address.state ?? ''}
                                     onChange={(e) =>
                                         setAddress((prev) => ({
                                             ...prev,
-                                            state: address.state,
+                                            state: e.target.value,
                                         }))
                                     }
                                     className="pl-10 w-full border rounded-lg p-3 text-sm bg-gray-50"
@@ -245,11 +283,11 @@ function Checkout() {
                                 />
                                 <input
                                     type="text"
-                                    value={address.pincode}
+                                    value={address.pincode ?? ''}
                                     onChange={(e) =>
                                         setAddress((prev) => ({
                                             ...prev,
-                                            pincode: address.pincode,
+                                            pincode: e.target.value,
                                         }))
                                     }
                                     className="pl-10 w-full border rounded-lg p-3 text-sm bg-gray-50"
@@ -271,7 +309,11 @@ function Checkout() {
                                 className="bg-green-600 text-white px-5 rounded-lg hover:green-700 transition-all font-medium"
                                 onClick={handleSearchQuery}
                             >
-                                Search
+                                {searchLoading ? (
+                                    <Loader2 className="animate-spin" />
+                                ) : (
+                                    'Search'
+                                )}
                             </button>
                         </div>
 
@@ -291,8 +333,76 @@ function Checkout() {
                                     <DraggableMarker />
                                 </MapContainer>
                             )}
+                            <motion.button
+                                onClick={handleCurrentLocation}
+                                whileTap={{ scale: 0.97 }}
+                                className="absolute bottom-4 right-4 bg-green-600 text-white shadow-lg rounded-full p-3 hover:bg-green-700 transition-all flex items-center justify-center z-999"
+                            >
+                                <LocateFixed size={22} />
+                            </motion.button>
                         </div>
                     </div>
+                </motion.div>
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border-gray-100 h-fit"
+                >
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <CreditCard className="text-green-600" />
+                        Payment Method{' '}
+                    </h2>
+
+                    <div className="space-y-4 mb-6">
+                        <button
+                            onClick={() => setPaymentMethod('online')}
+                            className={`flex items-center gap-3 w-full border rounded-lg p-3 transition-all ${paymentMethod === 'online' ? 'border-green-600 bg-green-50 shadow-sm' : 'hover:bg-gray-50'}`}
+                        >
+                            <CreditCardIcon className="text-green-600 " />
+                            <span className="font-medium text-gray-700">
+                                Pay Online (stripe)
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={() => setPaymentMethod('cod')}
+                            className={`flex items-center gap-3 w-full border rounded-lg p-3 transition-all ${paymentMethod === 'cod' ? 'border-green-600 bg-green-50 shadow-sm' : 'hover:bg-gray-50'}`}
+                        >
+                            <Truck className="text-green-600 " />
+                            <span className="font-medium text-gray-700">
+                                Cash on Delivery
+                            </span>
+                        </button>
+                    </div>
+                    <div className="border-t pt-4 text-gray-700 space-y-2 text-sm sm:text-base">
+                        <div className="flex justify-between">
+                            <span className="font-semibold">Subtotal</span>
+                            <span className="text-green-600 font-semibold">
+                                ${subTotal}
+                            </span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="font-semibold">Delivery Fee</span>
+                            <span className="text-green-600 font-semibold">
+                                ${deliveryFee}
+                            </span>
+                        </div>
+                        <div className="flex justify-between font-bold text-lg border-t pt-3">
+                            <span>Final Total</span>
+                            <span className="text-green-600 font-semibold">
+                                ${finalTotal}
+                            </span>
+                        </div>
+                    </div>
+                    <motion.button
+                        whileTap={{ scale: 0.93 }}
+                        className="w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold"
+                    >
+                        {paymentMethod === 'cod'
+                            ? 'Place Order'
+                            : 'Pay & Place Order'}
+                    </motion.button>
                 </motion.div>
             </div>
         </div>

@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`,
       {
         headers: {
-          'User-Agent': 'groceries/1.0(your-email@example.com)',
+          'User-Agent': 'grocery/1.0 example@example.com',
           'Referer': 'http://localhost:3000',
         },
         timeout:10000,
