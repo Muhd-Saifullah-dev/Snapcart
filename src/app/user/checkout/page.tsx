@@ -112,7 +112,7 @@ function Checkout() {
             } catch (e) {
                 console.log(e);
             }
-        }, 800);
+        }, 1000);
 
         return () => clearTimeout(timer);
     }, [position]);
@@ -168,7 +168,7 @@ function Checkout() {
                 },
                 paymentMethod
             })
-            console.log("result in order place ",result.data)
+            router.push("/user/order-success")
         } catch (error) {
             console.error(`error in place order ${error}`)
         }

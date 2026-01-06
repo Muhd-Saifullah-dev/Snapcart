@@ -8,26 +8,44 @@ export async function GET(req: Request) {
     const lon = searchParams.get('lon');
 
     if (!lat || !lon) {
-      return NextResponse.json({ error: 'lat/lon required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'lat/lon required' },
+        { status: 400 }
+      );
     }
 
     const res = await axios.get(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`,
+      'https://nominatim.openstreetmap.org/reverse',
       {
-        headers: {
-          'User-Agent': 'grocery/1.0 example@example.com',
-          'Referer': 'http://localhost:3000',
+        params: {
+          lat,
+          lon,
+          format: 'json',
+          addressdetails: 1,
+          'accept-language': 'en',
         },
-        timeout:10000,
+        headers: {
+          // MUST be real
+          'User-Agent': 'MyGroceryApp/1.0 (contact: myemail@gmail.com)',
+        },
+        timeout: 10000,
       }
     );
-    const result=await res.data
-    return NextResponse.json(result);
+
+    return NextResponse.json(res.data);
   } catch (error: any) {
-    console.log('Reverse geocode error:', error.message);
+    console.error(
+      'Reverse geocode error:',
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
     return NextResponse.json(
-      { error: error.message || 'Something went wrong' },
-      { status: 500 }
+      {
+        error: 'Reverse geocoding failed',
+        details: error.response?.data || error.message,
+      },
+      { status: error.response?.status || 500 }
     );
   }
 }

@@ -3,7 +3,7 @@ import Order from '@/model/order.model';
 import User from '@/model/user.model';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function Post(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
         await connectDb();
         const { userId, items, paymentMethod, address, totalAmount } =
