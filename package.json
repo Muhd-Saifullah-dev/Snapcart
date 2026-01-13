@@ -26,7 +26,8 @@
     "react-dom": "19.2.0",
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.2.0",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "stripe": "^20.1.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
