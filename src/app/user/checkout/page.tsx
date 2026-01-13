@@ -34,7 +34,7 @@ const markerIcon = new L.Icon({
 function Checkout() {
     const router = useRouter();
     const { userData } = useSelector((state: RootState) => state.user);
-    const { finalTotal, subTotal, deliveryFee ,cartData} = useSelector(
+    const { finalTotal, subTotal, deliveryFee, cartData } = useSelector(
         (state: RootState) => state.cart
     );
     const [address, setAddress] = useState({
@@ -139,41 +139,6 @@ function Checkout() {
         }
     };
 
-    const handleCod=async()=>{
-        if(!position) {
-            return  null
-        }
-        try {
-            const result=await axios.post("/api/user/order",{
-                userId:userData?._id,
-                items:cartData.map(item=>({
-                    grocery:item._id,
-                    name:item.name,
-                    price:item.price,
-                    unit:item.unit,
-                    quantity:item.quantity,
-                    image:item.image
-                })),
-                totalAmount:finalTotal,
-                address:{
-                    fullName:address.fullName,
-                    mobile:address.mobile,
-                    pincode:address.pincode,
-                    state:address.state,
-                    city:address.city,
-                    fullAddress:address.fullAddress,
-                    latitude:position[0],
-                    longitude:position[1]
-
-                },
-                paymentMethod
-            })
-            router.push("/user/order-success")
-        } catch (error) {
-            console.error(`error in place order ${error}`)
-        }
-    }
-
     const handleCurrentLocation = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -188,7 +153,71 @@ function Checkout() {
             );
         }
     };
+    const handleCod = async () => {
+        if (!position) {
+            return null;
+        }
+        try {
+            const result = await axios.post('/api/user/order', {
+                userId: userData?._id,
+                items: cartData.map((item) => ({
+                    grocery: item._id,
+                    name: item.name,
+                    price: item.price,
+                    unit: item.unit,
+                    quantity: item.quantity,
+                    image: item.image,
+                })),
+                totalAmount: finalTotal,
+                address: {
+                    fullName: address.fullName,
+                    mobile: address.mobile,
+                    pincode: address.pincode,
+                    state: address.state,
+                    city: address.city,
+                    fullAddress: address.fullAddress,
+                    latitude: position[0],
+                    longitude: position[1],
+                },
+                paymentMethod,
+            });
+            router.push('/user/order-success');
+        } catch (error) {
+            console.error(`error in place order ${error}`);
+        }
+    };
 
+    const handleOnlinePayment = async () => {
+        if (!position) return null;
+        try {
+            const result = await axios.post('/api/user/payment', {
+                userId: userData?._id,
+                items: cartData.map((item) => ({
+                    grocery: item._id,
+                    name: item.name,
+                    price: item.price,
+                    unit: item.unit,
+                    quantity: item.quantity,
+                    image: item.image,
+                })),
+                totalAmount: finalTotal,
+                address: {
+                    fullName: address.fullName,
+                    mobile: address.mobile,
+                    pincode: address.pincode,
+                    state: address.state,
+                    city: address.city,
+                    fullAddress: address.fullAddress,
+                    latitude: position[0],
+                    longitude: position[1],
+                },
+                paymentMethod,
+            });
+            window.location.href = result.data.url;
+        } catch (error) {
+            console.log('error in online payment :: ', error);
+        }
+    };
     return (
         <div className="w-[92%] md:w-[80%] mx-auto py-10 relative">
             <motion.button
@@ -433,14 +462,14 @@ function Checkout() {
                     <motion.button
                         whileTap={{ scale: 0.93 }}
                         className="w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold"
-                            onClick={()=>{if(paymentMethod==="cod"){
-                                handleCod()
-                            }else{
-                                null
-                                // handleOnlineOrder()
+                        onClick={() => {
+                            if (paymentMethod === 'cod') {
+                                handleCod();
+                            } else {
+                                handleOnlinePayment();
                             }
                         }}
-                   >
+                    >
                         {paymentMethod === 'cod'
                             ? 'Place Order'
                             : 'Pay & Place Order'}
