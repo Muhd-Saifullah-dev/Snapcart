@@ -79,7 +79,7 @@ function UserOrderCard({ order }: { order: IOrder }) {
                     </span>
                 </div>
 
-                <div className="border-t border-gray-200 pt-4">
+                <div className="border-t border-gray-200 pt-3">
                     <button
                         className="w-full flex justify-between items-center text-sm font-medium text-gray-700 hover:text-green-700 transition "
                         onClick={() => setExpanded((prev) => !prev)}
