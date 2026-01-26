@@ -10,8 +10,10 @@ export async function PATCH(
 ) {
     try {
         await connectDb();
-        const { orderId } = await params;
+        const { orderId } = await  params;
         const { status } = await req.json();
+        console.log(status)
+        console.log(orderId)
         const order = await Order.findById(orderId).populate('user');
         if (!order) {
             return NextResponse.json(
@@ -20,8 +22,10 @@ export async function PATCH(
             );
         }
         order.status = status;
+        console.log("status ",status)
         let DeliveryBoysPayload: any = [];
-        if (status === 'out of delivery' && !order.assignment) {
+        if (status === "out of delivery" && !order.assignment) {
+          
             const { latitude, longitude } = order.address;
             const nearByDeliveryBoys = await User.find({
                 role: 'deliveryBoy',
@@ -47,10 +51,11 @@ export async function PATCH(
 
             const candidates = availableDeliveryBoys.map((b) => b._id);
             if (candidates.length === 0) {
-                await order.save();
+                await order.save()
+             
                 return NextResponse.json(
                     { message: 'there is no available Delivery boys' },
-                    { status: 400 }
+                    { status: 200 }
                 );
             }
 
@@ -79,7 +84,8 @@ export async function PATCH(
             },
             { status: 200 }
         );
-    } catch (error) {
+    } catch (error:any) {
+        console.log("error in update-status ",error)
         return NextResponse.json(
             { error: `error in update order status ${error}` },
             { status: 500 }

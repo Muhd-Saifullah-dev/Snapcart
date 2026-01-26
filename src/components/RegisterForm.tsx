@@ -18,6 +18,7 @@ import Image from 'next/image';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import { toast } from 'react-toastify';
 type propType = {
   previousStep: (s: number) => void;
 };
@@ -40,8 +41,9 @@ function RegisterForm({ previousStep }: propType) {
       console.log(result.data.data);
       router.push('/login');
       setLoading(false);
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
+      toast.error(error.response?.data?.message)
       setLoading(false);
     }
   };
