@@ -1,7 +1,8 @@
 'use client';
+import { getSocket } from '@/lib/socket';
 import { IDeliveryAssignment } from '@/model/deliveryAssignment.model';
 import axios from 'axios';
-import { div } from 'motion/react-client';
+
 import React, { useEffect, useState } from 'react';
 
 function DeliveryBoyDashboard() {
@@ -17,9 +18,16 @@ function DeliveryBoyDashboard() {
             }
         };
         fetchAssignments();
-
-        return () => setAssignments([]);
     }, []);
+
+    useEffect((): any => {
+        const socket = getSocket();
+        socket.on('new-assignment', (data) => {
+            setAssignments((prev) => [...prev!, data]);
+        });
+        return () => socket.off('new-assignment');
+    }, []);
+
     return (
         <div className="w-full min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">

@@ -1,4 +1,5 @@
 import connectDb from '@/lib/db';
+import emitEventHandler from '@/lib/emitEventHandler';
 import DeliveryAssignment from '@/model/deliveryAssignment.model';
 import Order from '@/model/order.model';
 import User from '@/model/user.model';
@@ -10,10 +11,10 @@ export async function PATCH(
 ) {
     try {
         await connectDb();
-        const { orderId } = await  params;
+        const { orderId } = await params;
         const { status } = await req.json();
-        console.log(status)
-        console.log(orderId)
+        console.log(status);
+        console.log(orderId);
         const order = await Order.findById(orderId).populate('user');
         if (!order) {
             return NextResponse.json(
@@ -22,10 +23,9 @@ export async function PATCH(
             );
         }
         order.status = status;
-        console.log("status ",status)
+        console.log('status ', status);
         let DeliveryBoysPayload: any = [];
-        if (status === "out of delivery" && !order.assignment) {
-          
+        if (status === 'out of delivery' && !order.assignment) {
             const { latitude, longitude } = order.address;
             const nearByDeliveryBoys = await User.find({
                 role: 'deliveryBoy',
@@ -51,8 +51,12 @@ export async function PATCH(
 
             const candidates = availableDeliveryBoys.map((b) => b._id);
             if (candidates.length === 0) {
-                await order.save()
-             
+                await order.save();
+
+                await emitEventHandler('order-status-update', {
+                    orderId: order._id,
+                    status: order.status,
+                });
                 return NextResponse.json(
                     { message: 'there is no available Delivery boys' },
                     { status: 200 }
@@ -64,6 +68,17 @@ export async function PATCH(
                 broadcastedTo: candidates,
                 status: 'broadcasted',
             });
+            await deliveryAssignment.populate('order');
+            for (const boyId of candidates) {
+                const boy = await User.findById(boyId);
+                if (boy.socketId) {
+                    await emitEventHandler(
+                        'new-assignment',
+                       deliveryAssignment,
+                        boy.socketId
+                    );
+                }
+            }
             order.assignment = deliveryAssignment._id;
 
             DeliveryBoysPayload = availableDeliveryBoys.map((b) => ({
@@ -77,6 +92,11 @@ export async function PATCH(
         }
         await order.save();
         await order.populate('user');
+        await emitEventHandler('order-status-update', {
+            orderId: order._id,
+            status: order.status,
+        });
+
         return NextResponse.json(
             {
                 assignment: order.assignment?._id,
@@ -84,8 +104,8 @@ export async function PATCH(
             },
             { status: 200 }
         );
-    } catch (error:any) {
-        console.log("error in update-status ",error)
+    } catch (error: any) {
+        console.log('error in update-status ', error);
         return NextResponse.json(
             { error: `error in update order status ${error}` },
             { status: 500 }

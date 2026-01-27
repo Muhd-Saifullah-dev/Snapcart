@@ -1,6 +1,6 @@
 'use client';
 import { IOrder } from '@/model/order.model';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import {
     Bike,
@@ -12,8 +12,22 @@ import {
     Truck,
 } from 'lucide-react';
 import Image from 'next/image';
+import { getSocket } from '@/lib/socket';
+import { data } from 'motion/react-client';
 function UserOrderCard({ order }: { order: IOrder }) {
     const [expanded, setExpanded] = useState(false);
+    const [status, setStatus] = useState(order.status);
+
+    useEffect(():any => {
+        const socket = getSocket();
+        socket.on('order-status-update', (data) => {
+            if (data.orderId.toString() === order?._id!.toString()) {
+                setStatus(data.status);
+            }
+        });
+        return () => socket.off('order-status-update');
+    }, []);
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'pending':
@@ -26,6 +40,7 @@ function UserOrderCard({ order }: { order: IOrder }) {
                 return 'bg-gray-100 text-gray-700 border-gray-300';
         }
     };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -52,9 +67,9 @@ function UserOrderCard({ order }: { order: IOrder }) {
                         {order.isPaid ? 'Paid' : 'Unpaid'}
                     </span>
                     <span
-                        className={`px-3 py-1 text-xs font-semibold border rounded-full ${getStatusColor(order.status)}`}
+                        className={`px-3 py-1 text-xs font-semibold border rounded-full ${getStatusColor(status)}`}
                     >
-                        {order.status}
+                        {status}
                     </span>
                 </div>
             </div>
@@ -144,7 +159,7 @@ function UserOrderCard({ order }: { order: IOrder }) {
                         <span>
                             Delivery :{' '}
                             <span className="text-green-700 font-semibold">
-                                {order.status}
+                                {status}
                             </span>
                         </span>
                     </div>

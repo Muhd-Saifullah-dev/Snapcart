@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import connectDb from '@/lib/db';
 import DeliveryAssignment from '@/model/deliveryAssignment.model';
 import { NextRequest, NextResponse } from 'next/server';
+import '@/model/order.model';
 
 export async function GET(req: NextRequest) {
     try {
