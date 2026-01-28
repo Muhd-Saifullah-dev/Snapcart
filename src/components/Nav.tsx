@@ -104,7 +104,7 @@ function Nav({ user }: { user: IUSER }) {
                               <Boxes className="w-5 h-5" /> View Grocery
                           </Link>
                           <Link
-                              href={''}
+                              href={'/admin/manage-orders'}
                               className="flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all"
                           >
                               <ClipboardCheck className="w-5 h-5" /> Manage

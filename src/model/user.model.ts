@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-interface IUSER {
+export interface IUSER {
     _id?: mongoose.Schema.Types.ObjectId;
     name: string;
     email: string;

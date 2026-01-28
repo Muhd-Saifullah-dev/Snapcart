@@ -1,5 +1,5 @@
 'use client';
-import { IOrder } from '@/model/order.model';
+
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import {
@@ -10,15 +10,50 @@ import {
     MapPin,
     Package,
     Truck,
+    UserCheck,
 } from 'lucide-react';
 import Image from 'next/image';
 import { getSocket } from '@/lib/socket';
-import { data } from 'motion/react-client';
+import mongoose from 'mongoose';
+import { IUSER } from '@/model/user.model';
+
+interface IOrder {
+    _id?: mongoose.Types.ObjectId;
+    user: mongoose.Types.ObjectId;
+    items: [
+        {
+            grocery: mongoose.Types.ObjectId;
+            name: string;
+            price: string;
+            unit: string;
+            image: string;
+            quantity: number;
+        },
+    ];
+    isPaid: boolean;
+    totalAmount: number;
+    paymentMethod: 'cod' | 'online';
+    address: {
+        fullName: string;
+        city: string;
+        mobile: string;
+        state: string;
+        pincode: string;
+        fullAddress: string;
+        latitude: number;
+        longitude: number;
+    };
+    assignment?: mongoose.Types.ObjectId;
+    assignedDeliveryBoy?: IUSER;
+    status: 'pending' | 'out of delivery' | 'delivered';
+    createdAt?: Date;
+    updatedAt?: Date;
+}
 function UserOrderCard({ order }: { order: IOrder }) {
     const [expanded, setExpanded] = useState(false);
     const [status, setStatus] = useState(order.status);
 
-    useEffect(():any => {
+    useEffect((): any => {
         const socket = getSocket();
         socket.on('order-status-update', (data) => {
             if (data.orderId.toString() === order?._id!.toString()) {
@@ -85,6 +120,44 @@ function UserOrderCard({ order }: { order: IOrder }) {
                         <CreditCard size={16} className="text-green-600" />
                         Online Payment
                     </div>
+                )}
+
+                {order.assignedDeliveryBoy && (
+                    <>
+                        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between ">
+                            <div className="flex items-center gap-3 text-sm text-gray-700">
+                                <UserCheck
+                                    className="text-blue-600"
+                                    size={18}
+                                />
+                                <div className="font-semibold text-gray-800">
+                                    <p>
+                                        Assigned to :{' '}
+                                        <span>
+                                            {order.assignedDeliveryBoy.name}
+                                        </span>{' '}
+                                    </p>
+                                    <p className="text-xs text-gray-600">
+                                        {' '}
+                                        📞 +92{' '}
+                                        {order.assignedDeliveryBoy.mobile}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <a
+                                href={`tel:${order.assignedDeliveryBoy.mobile}`}
+                                className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-700 transition"
+                            >
+                                Call
+                            </a>
+                        </div>
+
+                        <button className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl shadow hover:bg-green-700 transition">
+                            {' '}
+                            <Truck size={18} /> Track your Order
+                        </button>
+                    </>
                 )}
 
                 <div className="flex items-center gap-2 text-gray-700 text-sm">
