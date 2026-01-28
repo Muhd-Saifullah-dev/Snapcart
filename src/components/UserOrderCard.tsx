@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { getSocket } from '@/lib/socket';
 import mongoose from 'mongoose';
 import { IUSER } from '@/model/user.model';
+import { useRouter } from 'next/navigation';
 
 interface IOrder {
     _id?: mongoose.Types.ObjectId;
@@ -75,7 +76,7 @@ function UserOrderCard({ order }: { order: IOrder }) {
                 return 'bg-gray-100 text-gray-700 border-gray-300';
         }
     };
-
+    const router = useRouter();
     return (
         <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -153,7 +154,12 @@ function UserOrderCard({ order }: { order: IOrder }) {
                             </a>
                         </div>
 
-                        <button className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl shadow hover:bg-green-700 transition">
+                        <button
+                            onClick={() =>
+                                router.push(`/user/track-order/${order._id?.toString()}`)
+                            }
+                            className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl shadow hover:bg-green-700 transition"
+                        >
                             {' '}
                             <Truck size={18} /> Track your Order
                         </button>

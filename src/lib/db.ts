@@ -7,10 +7,10 @@ if (!MONGO_URI) {
 }
 
 
-let cached = global.mangoose;
+let cached = global.mongoose;
 
 if (!cached) {
-  cached = global.mangoose = { conn: null, promise: null };
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
 const connectDb = async () => {

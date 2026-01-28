@@ -1,7 +1,7 @@
 import { Connection } from "mongoose"
 
 declare global{
-    var mangoose:{
+    var mongoose:{
         conn:Connection | null,
         promise:Promise<Connection> | null
     }
