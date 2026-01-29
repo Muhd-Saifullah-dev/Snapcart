@@ -16,12 +16,12 @@ function DeliveryBoyDashboard() {
     const [assignments, setAssignments] = useState<any[]>();
     const [activeOrder, setActiveOrder] = useState<any>(null);
     const [userLocation, setUserLocation] = useState<ILocation>({
-        latitude:0,
-        longitude:0
+        latitude: 0,
+        longitude: 0,
     });
     const [deliveryBoyLocation, setDeliveryBoyLocation] = useState<ILocation>({
-         latitude:0,
-        longitude:0
+        latitude: 0,
+        longitude: 0,
     });
     const { userData } = useSelector((state: RootState) => state.user);
     const fetchAssignments = async () => {
@@ -87,7 +87,7 @@ function DeliveryBoyDashboard() {
             (pos) => {
                 const lat = pos.coords.latitude;
                 const lon = pos.coords.longitude;
-                setDeliveryBoyLocation({latitude:lat,longitude:lon})
+                setDeliveryBoyLocation({ latitude: lat, longitude: lon });
                 socket.emit('update-location', {
                     userId: userData?._id,
                     latitude: lat,
@@ -114,7 +114,10 @@ function DeliveryBoyDashboard() {
                     </p>
 
                     <div className="rounded-xl  border shadow-lg  overflow-hidden mb-6">
-                        <LiveMap userLocation={userLocation} deliveryBoyLocation={deliveryBoyLocation} />
+                        <LiveMap
+                            userLocation={userLocation}
+                            deliveryBoyLocation={deliveryBoyLocation}
+                        />
                     </div>
                 </div>
             </div>
