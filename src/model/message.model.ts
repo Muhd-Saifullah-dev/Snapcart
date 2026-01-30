@@ -14,7 +14,7 @@ interface IMessage{
 const messageSchema=new mongoose.Schema<IMessage>({
     roomId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"ChatRoom"
+        ref:"Order"
     },
     text:{
         type:String
@@ -27,7 +27,7 @@ const messageSchema=new mongoose.Schema<IMessage>({
 
 },{timestamps:true})
 
-
+messageSchema.index({roomId:1,createdAt:1})
 const Message=mongoose.models.Message || mongoose.model("Message",messageSchema)
 
 export  default Message

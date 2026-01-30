@@ -7,6 +7,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import LiveMap from './LiveMap';
+import DeliveryChat from './DeliveryChat';
 
 interface ILocation {
     latitude: number;
@@ -104,7 +105,7 @@ function DeliveryBoyDashboard() {
 
     if (activeOrder && userLocation) {
         return (
-            <div className="p-4 pt-[120px] min-h-screen">
+            <div className="p-4 pt-[120px] min-h-screen ">
                 <div className="max-w-3xl mx-auto">
                     <h1 className="text-2xl font-bold text-green-700 mb-2">
                         Active Delivery
@@ -119,6 +120,11 @@ function DeliveryBoyDashboard() {
                             deliveryBoyLocation={deliveryBoyLocation}
                         />
                     </div>
+            
+            <DeliveryChat 
+            orderId={activeOrder.order._id.toString()} 
+            deliveryBoyId={String(userData?._id!)}  />
+
                 </div>
             </div>
         );
