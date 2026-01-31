@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
         );
 
         const data = await response.data;
-        const replyText=data.candidates[0].content.parts[0].text || ""
-        const suggest=replyText.split(",").map((s:string)=>s.trim())
+        const replyText = data.candidates[0].content.parts[0].text || '';
+        const suggest = replyText.split(',').map((s: string) => s.trim());
         return NextResponse.json(suggest, { status: 200 });
     } catch (error) {
         return NextResponse.json(
