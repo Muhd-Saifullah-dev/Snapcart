@@ -72,6 +72,18 @@ function DeliveryBoyDashboard() {
     };
 
     useEffect(() => {
+        const socket = getSocket();
+        socket.on('update-delivery-location', ({ userId, location }) => {
+            setDeliveryBoyLocation({
+                latitude: location.coordinates[1],
+                longitude: location.coordinates[0],
+            });
+        });
+        return () => {
+            socket.off('update-delivery-location');
+        };
+    }, []);
+    useEffect(() => {
         const loadData = async () => {
             await Promise.all([fetchAssignments(), fetchCurrentOrder()]);
         };
@@ -96,6 +108,11 @@ function DeliveryBoyDashboard() {
                 });
             },
             (err) => {
+                if (err.code === 1) {
+                    alert(
+                        'Location access is required to deliver orders. Please allow location access.'
+                    );
+                }
                 console.log('error in geo updater :: ', err);
             },
             { enableHighAccuracy: true }
@@ -120,11 +137,11 @@ function DeliveryBoyDashboard() {
                             deliveryBoyLocation={deliveryBoyLocation}
                         />
                     </div>
-            
-            <DeliveryChat 
-            orderId={activeOrder.order._id.toString()} 
-            deliveryBoyId={String(userData?._id!)}  />
 
+                    <DeliveryChat
+                        orderId={activeOrder.order._id.toString()}
+                        deliveryBoyId={String(userData?._id!)}
+                    />
                 </div>
             </div>
         );
@@ -135,10 +152,10 @@ function DeliveryBoyDashboard() {
                 <h2 className="text-2xl font-bold mt-[120px] mb-[30px]">
                     Delivery Assignment
                 </h2>
-                {assignments?.map((a) => (
+                {assignments?.map((a, index) => (
                     <div
                         className="p-5 bg-white rounded-xl shadow mb-4  border"
-                        key={a._id}
+                        key={index}
                     >
                         <p className="text-gray-800">
                             <b>Order Id</b> #{a?.order._id.slice(-6)}

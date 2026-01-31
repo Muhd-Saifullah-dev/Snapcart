@@ -143,7 +143,7 @@ function Nav({ user }: { user: IUSER }) {
             document.removeEventListener('mousedown', handleClickOutside);
     }, []);
     return (
-        <div className="w-[95%] fixed top-4 left-1/2 -translate-x-1/2 bg-linear-to-r from-green-500 to-green-700 rounded-xl shadow-lg shadow-black/30 flex justify-between  items-center h-20 px-4 md:px-8 z-50 ">
+        <div className="w-[95%] fixed top-4 left-1/2 -translate-x-1/2 bg-linear-to-r from-green-500 to-green-700 rounded-xl shadow-lg shadow-black/30 flex justify-between  items-center h-20 px-4 md:px-8 z-999 ">
             <Link
                 href={'/'}
                 className="text-white font-extrabold text-2xl sm:text-3xl tracking-wide hover:scale-105 transition-transform"

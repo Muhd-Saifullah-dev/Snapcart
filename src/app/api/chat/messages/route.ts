@@ -5,7 +5,7 @@ import Order from '@/model/order.model';
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
         await connectDb();
         const { roomId } = await req.json();
