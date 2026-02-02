@@ -53,7 +53,7 @@ function LiveMap({ userLocation, deliveryBoyLocation }: IProps) {
         ? [deliveryBoyLocation.latitude, deliveryBoyLocation.longitude]
         : [userLocation.latitude, userLocation.longitude];
     return (
-        <div className="w-full h-[500px] rounded-xl overflow-hidden shadow relative ">
+        <div className="w-full h-[500px] rounded-xl overflow-hidden shadow relative z-2 ">
             <MapContainer
                 center={center as LatLngExpression}
                 zoom={13}

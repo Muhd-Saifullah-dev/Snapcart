@@ -22,6 +22,7 @@
     "motion": "^12.23.24",
     "next": "16.0.5",
     "next-auth": "^5.0.0-beta.30",
+    "nodemailer": "^7.0.13",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-leaflet": "^5.0.0",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-redux": "^7.1.34",

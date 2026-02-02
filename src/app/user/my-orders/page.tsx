@@ -1,11 +1,46 @@
 'use client';
-import { IOrder } from '@/model/order.model';
+
 import axios from 'axios';
 import { ArrowLeft, LoaderCircle, PackageSearch } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import UserOrderCard from '@/components/UserOrderCard';
+import mongoose from 'mongoose';
+import { IUSER } from '@/model/user.model';
+
+interface IOrder {
+    _id?: mongoose.Types.ObjectId;
+    user: mongoose.Types.ObjectId;
+    items: [
+        {
+            grocery: mongoose.Types.ObjectId;
+            name: string;
+            price: string;
+            unit: string;
+            image: string;
+            quantity: number;
+        },
+    ];
+    isPaid: boolean;
+    totalAmount: number;
+    paymentMethod: 'cod' | 'online';
+    address: {
+        fullName: string;
+        city: string;
+        mobile: string;
+        state: string;
+        pincode: string;
+        fullAddress: string;
+        latitude: number;
+        longitude: number;
+    };
+    assignment?: mongoose.Types.ObjectId;
+    assignedDeliveryBoy?: IUSER;
+    status: 'pending' | 'out of delivery' | 'delivered';
+    createdAt?: Date;
+    updatedAt?: Date;
+}
 
 function MyOrders() {
     const router = useRouter();

@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import axios from 'axios';
-import { OpenStreetMapProvider } from 'leaflet-geosearch';
+
 
 const markerIcon = new L.Icon({
     iconUrl: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
@@ -37,6 +37,7 @@ function Checkout() {
     const { finalTotal, subTotal, deliveryFee, cartData } = useSelector(
         (state: RootState) => state.cart
     );
+    console.log(userData)
     const [address, setAddress] = useState({
         fullName: '',
         mobile: '',

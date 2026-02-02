@@ -8,6 +8,8 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import LiveMap from './LiveMap';
 import DeliveryChat from './DeliveryChat';
+import { toast } from 'react-toastify';
+import { Loader } from 'lucide-react';
 
 interface ILocation {
     latitude: number;
@@ -24,6 +26,13 @@ function DeliveryBoyDashboard() {
         latitude: 0,
         longitude: 0,
     });
+
+    const [showOtpBox,setShowOtpBox]=useState(false)
+    const [otp,setOtp]=useState("")
+    const [otpError,setOtpError]=useState("")
+    const [sendOtpLoading,setSendOtpLoading]=useState(false)
+    const [verifyOtpLoading,setVerifyOtpLoading]=useState(false)
+
     const { userData } = useSelector((state: RootState) => state.user);
     const fetchAssignments = async () => {
         try {
@@ -120,6 +129,38 @@ function DeliveryBoyDashboard() {
         return () => navigator.geolocation.clearWatch(watcher);
     }, [userData?._id]);
 
+
+
+    const sendOtp=async()=>{
+        setSendOtpLoading(true)
+        try {
+            const result=await axios.post(`/api/delivery/otp/send`,{orderId:activeOrder.order._id})
+            console.log("result send otp",result)
+            setSendOtpLoading(false)
+            setShowOtpBox(true)
+        } catch (error) {
+            toast.error("send otp error")
+              setShowOtpBox(true)
+        }
+    }
+
+
+    const verifyOtp=async()=>{
+        setVerifyOtpLoading(true)
+            try {
+            const result=await axios.post(`/api/delivery/otp/verify`,{orderId:activeOrder.order._id,otp})
+            setActiveOrder(null)
+            console.log("result verify otp",result)
+            setVerifyOtpLoading(false)
+            setShowOtpBox(true)
+            await fetchCurrentOrder()
+        } catch (error) {
+            setOtpError("otp verification error")
+                     setVerifyOtpLoading(false)
+            console.log(error)
+        }
+    }
+
     if (activeOrder && userLocation) {
         return (
             <div className="p-4 pt-[120px] min-h-screen ">
@@ -142,10 +183,49 @@ function DeliveryBoyDashboard() {
                         orderId={activeOrder.order._id.toString()}
                         deliveryBoyId={String(userData?._id!)}
                     />
+
+
+                    <div className='mt-6 bg-white rounded-xl border shadow p-6'>
+                        {
+                            !activeOrder.order.deliveryOtpVerification && !showOtpBox && (
+                                        <button 
+                                            onClick={sendOtp}
+                                        
+                                        className='w-full  text-center py-4 bg-green-600 text-white rounded-lg '> {sendOtpLoading ? <Loader size={16} className='animate-spin text-white '/> : "Mark as Delivered"}  </button>
+                            )
+                        }
+
+
+                    {
+                        showOtpBox && (
+                         <div className='mt-4'>
+                            <input type="text" 
+                            onChange={(e)=>setOtp(e.target.value)}
+                            value={otp}
+                            className='w-full py-3 border rounded-lg text-center' placeholder='Enter your otp' maxLength={6}  minLength={6} />
+                            <button className='w-full mt-2 bg-blue-600  text-center hover:bg-blue-700 text-white py-4 rounded-lg'
+                            onClick={verifyOtp}
+                            > {verifyOtpLoading ? <Loader size={18} className='animate-spin text-white '/> : " Verify Otp"}   </button>
+                            {otpError && <div className='text-red-600 mt-2 text-xs '>{otpError}</div>}
+                         </div>   
+                        )
+                    }
+
+
+                        {activeOrder.order.deliveryOtpVerification && <div className='text-green-700 text-center font-bold'>Delivery completed!</div>}
+
+                    </div>
+                
+                
+                
+                
                 </div>
             </div>
         );
     }
+
+
+
     return (
         <div className="w-full min-h-screen bg-gray-50 p-4">
             <div className="max-w-3xl mx-auto">
