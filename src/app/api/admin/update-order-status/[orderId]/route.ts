@@ -24,6 +24,7 @@ export async function PATCH(
         }
         order.status = status;
         console.log('status ', status);
+        await order.save()
         let DeliveryBoysPayload: any = [];
         if (status === 'out of delivery' && !order.assignment) {
             const { latitude, longitude } = order.address;
@@ -96,6 +97,8 @@ export async function PATCH(
             orderId: order._id,
             status: order.status,
         });
+
+        
 
         return NextResponse.json(
             {

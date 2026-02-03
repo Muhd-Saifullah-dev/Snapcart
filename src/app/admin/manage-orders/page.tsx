@@ -61,13 +61,21 @@ function ManageOrders() {
         };
     }, []);
 
-    useEffect((): any => {
+    useEffect(()=> {
         const socket = getSocket();
         socket.on('new-order', (newOrder) => {
             setOrders((prev) => [newOrder, ...prev!]);
         });
 
-        return () => socket.off('new-order');
+        socket.on("order-assigned",({orderId,assignedDeliveryBoy})=>{
+               setOrders((prev)=>prev?.map((o)=>(
+                o._id===orderId?{...o,assignedDeliveryBoy}:o
+            )))
+        })
+
+        return () => {socket.off('new-order')
+            socket.off("order-assigned")
+        };
     }, []);
     return (
         <div className="min-h-screen bg-gray-50 w-full">
@@ -88,7 +96,7 @@ function ManageOrders() {
             <div className="max-w-6xl mx-auto px-4 pt-24 pb-16 space-y-8">
                 <div className="space-y-6">
                     {orders?.map((order, index) => (
-                        <AdminOrderCard key={index} order={order} />
+                        <AdminOrderCard key={order._id?.toString()} order={order} />
                     ))}
                 </div>
             </div>

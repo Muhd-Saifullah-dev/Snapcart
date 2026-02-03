@@ -57,6 +57,7 @@ function DeliveryBoyDashboard() {
             const result = await axios.get(
                 `/api/delivery/assignment/${id}/accept-assignment`
             );
+            await fetchCurrentOrder()
             console.log(result);
         } catch (error) {
             console.log('error', error);
@@ -154,6 +155,7 @@ function DeliveryBoyDashboard() {
             setVerifyOtpLoading(false)
             setShowOtpBox(true)
             await fetchCurrentOrder()
+            await fetchAssignments()
         } catch (error) {
             setOtpError("otp verification error")
                      setVerifyOtpLoading(false)
@@ -191,7 +193,7 @@ function DeliveryBoyDashboard() {
                                         <button 
                                             onClick={sendOtp}
                                         
-                                        className='w-full  text-center py-4 bg-green-600 text-white rounded-lg '> {sendOtpLoading ? <Loader size={16} className='animate-spin text-white '/> : "Mark as Delivered"}  </button>
+                                        className='w-full  text-center py-4 bg-green-600 text-white rounded-lg flex items-center justify-center'> {sendOtpLoading ? <Loader size={16} className='animate-spin text-white '/> : "Mark as Delivered"}  </button>
                             )
                         }
 
@@ -203,9 +205,9 @@ function DeliveryBoyDashboard() {
                             onChange={(e)=>setOtp(e.target.value)}
                             value={otp}
                             className='w-full py-3 border rounded-lg text-center' placeholder='Enter your otp' maxLength={6}  minLength={6} />
-                            <button className='w-full mt-2 bg-blue-600  text-center hover:bg-blue-700 text-white py-4 rounded-lg'
+                            <button className='w-full mt-2 bg-blue-600  text-center hover:bg-blue-700 text-white py-4 rounded-lg flex items-center justify-center'
                             onClick={verifyOtp}
-                            > {verifyOtpLoading ? <Loader size={18} className='animate-spin text-white '/> : " Verify Otp"}   </button>
+                            > {verifyOtpLoading ? <Loader size={18} className='animate-spin text-white  text-center'/> : " Verify Otp"}   </button>
                             {otpError && <div className='text-red-600 mt-2 text-xs '>{otpError}</div>}
                          </div>   
                         )

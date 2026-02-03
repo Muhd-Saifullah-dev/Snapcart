@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import UserOrderCard from '@/components/UserOrderCard';
 import mongoose from 'mongoose';
 import { IUSER } from '@/model/user.model';
+import { getSocket } from '@/lib/socket';
 
 interface IOrder {
     _id?: mongoose.Types.ObjectId;
@@ -65,6 +66,22 @@ function MyOrders() {
             setOrders([]);
         };
     }, []);
+
+
+    useEffect(()=>{
+        const socket=getSocket()
+        socket.on("order-assigned",({orderId,assignedDeliveryBoy})=>{
+            setOrders((prev)=>prev?.map((o)=>(
+                o._id===orderId?{...o,assignedDeliveryBoy}:o
+            )))
+        })
+
+        return ()=>{
+            socket.off("order-assigned")
+        }
+    },[])
+
+
 
     if (loading) {
         return (

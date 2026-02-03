@@ -1,4 +1,5 @@
 import connectDb from '@/lib/db';
+import emitEventHandler from '@/lib/emitEventHandler';
 import DeliveryAssignment from '@/model/deliveryAssignment.model';
 import Order from '@/model/order.model';
 import { NextRequest, NextResponse } from 'next/server';
@@ -39,6 +40,11 @@ export async function POST(req: NextRequest) {
         order.deliveryOtpVerification = true;
         order.deliveryAt = new Date();
         await order.save();
+
+             await emitEventHandler('order-status-update', {
+            orderId: order._id,
+            status: order.status,
+        });
         await await DeliveryAssignment.updateOne(
             { order: orderId },
             { $set: { assignTo: null, status: 'completed' } }
