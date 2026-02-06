@@ -2,7 +2,15 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowLeft, Package, Pencil, Search, X } from 'lucide-react';
+import {
+    ArrowLeft,
+    Loader2,
+    Package,
+    Pencil,
+    Search,
+    Upload,
+    X,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { IGrocery } from '@/model/grocery.model';
 import Image from 'next/image';
@@ -19,13 +27,16 @@ const categories = [
     'Instant & Packaged Food',
     'Baby & Pet Care',
 ];
+const units = ['kg', 'g', 'liter', 'ml', 'piece', 'pack'];
 
 function ViewGrocery() {
     const router = useRouter();
     const [groceries, setGroceries] = useState<IGrocery[]>();
     const [editing, setEditing] = useState<IGrocery | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-
+    const [backendImage, setBackendImage] = useState<Blob | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [deleteLoading, setDeleteloading] = useState(false);
     useEffect(() => {
         const getGroceries = async () => {
             try {
@@ -42,6 +53,55 @@ function ViewGrocery() {
             setImagePreview(editing.image);
         }
     }, [editing]);
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setBackendImage(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
+    const hanleEdit = async () => {
+        setLoading(true);
+        if (!editing) return;
+
+        try {
+            const formData = new FormData();
+            formData.append('groceryId', editing?._id?.toString()!);
+            formData.append('name', editing?.name);
+            formData.append('category', editing.category);
+            formData.append('price', editing.price);
+            formData.append('unit', editing.unit);
+            if (backendImage) {
+                formData.append('image', backendImage);
+            }
+            const result = await axios.patch(
+                `/api/admin/edit-grocery`,
+                formData
+            );
+            setLoading(false);
+            window.location.reload();
+        } catch (error) {
+            console.log(error);
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteGrocery = async () => {
+        setDeleteloading(true);
+        if (!editing) return;
+        try {
+            const result = await axios.delete('/api/admin/delete-grocery', {
+                data: { groceryId: editing._id },
+            });
+            setDeleteloading(false);
+            window.location.reload();
+        } catch (error) {
+            console.log(error);
+            setDeleteloading(false);
+        }
+    };
     return (
         <div className="pt-4 w-[95%] md:w-[85%] mx-auto pb-20">
             <motion.div
@@ -160,6 +220,23 @@ function ViewGrocery() {
                                         className="object-cover"
                                     />
                                 )}
+                                <label
+                                    htmlFor="imageUpload"
+                                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
+                                >
+                                    {' '}
+                                    <Upload
+                                        size={28}
+                                        className="text-green-500"
+                                    />{' '}
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="images/*"
+                                    hidden
+                                    id="imageUpload"
+                                    onChange={handleImageUpload}
+                                />
                             </div>
 
                             <div className="space-y-4">
@@ -193,6 +270,66 @@ function ViewGrocery() {
                                         </option>
                                     ))}
                                 </select>
+                                <input
+                                    type="text"
+                                    value={editing.price}
+                                    placeholder="Price"
+                                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none "
+                                    onChange={(e) =>
+                                        setEditing({
+                                            ...editing,
+                                            price: e.target.value,
+                                        })
+                                    }
+                                />
+
+                                <select
+                                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none bg-white "
+                                    value={editing.unit}
+                                    onChange={(e) =>
+                                        setEditing({
+                                            ...editing,
+                                            unit: e.target.value,
+                                        })
+                                    }
+                                >
+                                    <option>Select Unit</option>
+                                    {units.map((u, index) => (
+                                        <option key={index} value={u}>
+                                            {u}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex justify-end gap-3 mt-6 ">
+                                <button
+                                    className="px-4 py-2 rounded-lg bg-green-600 text-white flex items-center gap-2 hover:bg-green-700 transition-all"
+                                    onClick={hanleEdit}
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <Loader2
+                                            size={14}
+                                            className=" animate-spin"
+                                        />
+                                    ) : (
+                                        'Edit Grocery'
+                                    )}
+                                </button>
+                                <button
+                                    className="px-4 py-2 rounded-lg bg-red-600 text-white flex items-center gap-2 hover:bg-red-700  transition"
+                                    onClick={handleDeleteGrocery}
+                                    disabled={deleteLoading}
+                                >
+                                    {deleteLoading ? (
+                                        <Loader2
+                                            size={14}
+                                            className="animate-spin"
+                                        />
+                                    ) : (
+                                        'Delete Grocery'
+                                    )}
+                                </button>
                             </div>
                         </motion.div>
                     </motion.div>

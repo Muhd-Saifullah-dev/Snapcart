@@ -27,7 +27,7 @@ function AddGrocery() {
     const [price, setPrice] = useState('');
     const [preview, setPreview] = useState<string | null>();
     const [backendImage, setBackendImage] = useState<File | null>();
-    const [loading,setLoading]=useState(false)
+    const [loading, setLoading] = useState(false);
     const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || files.length == 0) return;
@@ -37,8 +37,8 @@ function AddGrocery() {
     };
 
     const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault()
-        setLoading(true)
+        e.preventDefault();
+        setLoading(true);
         try {
             const formData = new FormData();
             formData.append('name', name);
@@ -49,21 +49,27 @@ function AddGrocery() {
                 formData.append('image', backendImage);
             }
             const result = await axios.post('/api/admin/add-grocery', formData);
-            if(result.status===200){
-                toast.success("grocery add successfully")
-                setLoading(false)
+            if (result.status === 200) {
+                toast.success('grocery add successfully');
+                setLoading(false);
             }
-            if(result.status===400){
-                toast.error("Invalid credientials")
-                setLoading(false)
+            if (result.status === 400) {
+                toast.error('Invalid credientials');
+                setLoading(false);
             }
-            console.log(result)
+            console.log(result);
             console.log(result.data);
-            setLoading(false)
+            setLoading(false);
+            setName('');
+            setCategory('');
+            setPrice('');
+            setUnit('');
+            setBackendImage(null);
+            setPreview(null);
         } catch (error) {
-            toast.error("error in add grocery")
+            toast.error('error in add grocery');
             console.log(error);
-            setLoading(false)
+            setLoading(false);
         }
     };
     return (
@@ -202,8 +208,11 @@ function AddGrocery() {
                         whileTap={{ scale: 0.9 }}
                         className="mt-4  w-full bg-linear-to-r from-green-500 to-green-700 text-white font-semibold py-3 rounded-xl shadow-lg  hover:shadow-xl disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                     >
-                        {loading?<Loader className='w-5 h-5 animate-spin'/>: "Add Grocery"}
-                        
+                        {loading ? (
+                            <Loader className="w-5 h-5 animate-spin" />
+                        ) : (
+                            'Add Grocery'
+                        )}
                     </motion.button>
                 </form>
             </motion.div>
