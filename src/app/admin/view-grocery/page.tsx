@@ -32,19 +32,19 @@ const units = ['kg', 'g', 'liter', 'ml', 'piece', 'pack'];
 function ViewGrocery() {
     const router = useRouter();
     const [groceries, setGroceries] = useState<IGrocery[]>();
-    const [search,setSearch]=useState("")
+    const [search, setSearch] = useState('');
     const [editing, setEditing] = useState<IGrocery | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [backendImage, setBackendImage] = useState<Blob | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [deleteLoading, setDeleteloading] = useState(false);
-    const [filtered,setFiltered]=useState<IGrocery[]>()
+    const [filtered, setFiltered] = useState<IGrocery[]>();
     useEffect(() => {
         const getGroceries = async () => {
             try {
                 const result = await axios.get(`/api/admin/get-groceries`);
                 setGroceries(result.data);
-                setFiltered(result.data)
+                setFiltered(result.data);
             } catch (error) {
                 console.log(`error in useEffect getGroceries : ${error}`);
             }
@@ -106,18 +106,20 @@ function ViewGrocery() {
         }
     };
 
-    const handleSearch=(e:React.FormEvent)=>{
-        e.preventDefault()
-        if(!search.trim()){
-            setFiltered(groceries)
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!search.trim()) {
+            setFiltered(groceries);
         }
-        const q=search.toLowerCase()
+        const q = search.toLowerCase();
         setFiltered(
-            groceries?.filter((g)=>(
-                g.name.toLowerCase().includes(q) || g.category.toLowerCase().includes(q)
-            ))
-        )
-    }
+            groceries?.filter(
+                (g) =>
+                    g.name.toLowerCase().includes(q) ||
+                    g.category.toLowerCase().includes(q)
+            )
+        );
+    };
     return (
         <div className="pt-4 w-[95%] md:w-[85%] mx-auto pb-20">
             <motion.div
@@ -152,8 +154,8 @@ function ViewGrocery() {
                     type="text"
                     className="w-full outline-none text-gray-700 placeholder-gray-400"
                     placeholder="search by name or category..."
-                   value={search}
-                    onChange={(e)=>setSearch(e.target.value)}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                 />
             </motion.form>
 

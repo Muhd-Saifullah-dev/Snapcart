@@ -10,12 +10,21 @@ import LiveMap from './LiveMap';
 import DeliveryChat from './DeliveryChat';
 import { toast } from 'react-toastify';
 import { Loader } from 'lucide-react';
+import {
+    Bar,
+    BarChart,
+    Legend,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 interface ILocation {
     latitude: number;
     longitude: number;
 }
-function DeliveryBoyDashboard() {
+function DeliveryBoyDashboard({ earning }: { earning: number }) {
     const [assignments, setAssignments] = useState<any[]>();
     const [activeOrder, setActiveOrder] = useState<any>(null);
     const [userLocation, setUserLocation] = useState<ILocation>({
@@ -27,11 +36,11 @@ function DeliveryBoyDashboard() {
         longitude: 0,
     });
 
-    const [showOtpBox,setShowOtpBox]=useState(false)
-    const [otp,setOtp]=useState("")
-    const [otpError,setOtpError]=useState("")
-    const [sendOtpLoading,setSendOtpLoading]=useState(false)
-    const [verifyOtpLoading,setVerifyOtpLoading]=useState(false)
+    const [showOtpBox, setShowOtpBox] = useState(false);
+    const [otp, setOtp] = useState('');
+    const [otpError, setOtpError] = useState('');
+    const [sendOtpLoading, setSendOtpLoading] = useState(false);
+    const [verifyOtpLoading, setVerifyOtpLoading] = useState(false);
 
     const { userData } = useSelector((state: RootState) => state.user);
     const fetchAssignments = async () => {
@@ -57,7 +66,7 @@ function DeliveryBoyDashboard() {
             const result = await axios.get(
                 `/api/delivery/assignment/${id}/accept-assignment`
             );
-            await fetchCurrentOrder()
+            await fetchCurrentOrder();
             console.log(result);
         } catch (error) {
             console.log('error', error);
@@ -130,37 +139,84 @@ function DeliveryBoyDashboard() {
         return () => navigator.geolocation.clearWatch(watcher);
     }, [userData?._id]);
 
-
-
-    const sendOtp=async()=>{
-        setSendOtpLoading(true)
+    const sendOtp = async () => {
+        setSendOtpLoading(true);
         try {
-            const result=await axios.post(`/api/delivery/otp/send`,{orderId:activeOrder.order._id})
-            console.log("result send otp",result)
-            setSendOtpLoading(false)
-            setShowOtpBox(true)
+            const result = await axios.post(`/api/delivery/otp/send`, {
+                orderId: activeOrder.order._id,
+            });
+            console.log('result send otp', result);
+            setSendOtpLoading(false);
+            setShowOtpBox(true);
         } catch (error) {
-            toast.error("send otp error")
-              setShowOtpBox(true)
+            toast.error('send otp error');
+            setShowOtpBox(true);
         }
-    }
+    };
 
-
-    const verifyOtp=async()=>{
-        setVerifyOtpLoading(true)
-            try {
-            const result=await axios.post(`/api/delivery/otp/verify`,{orderId:activeOrder.order._id,otp})
-            setActiveOrder(null)
-            console.log("result verify otp",result)
-            setVerifyOtpLoading(false)
-            setShowOtpBox(true)
-            await fetchCurrentOrder()
-            await fetchAssignments()
+    const verifyOtp = async () => {
+        setVerifyOtpLoading(true);
+        try {
+            const result = await axios.post(`/api/delivery/otp/verify`, {
+                orderId: activeOrder.order._id,
+                otp,
+            });
+            setActiveOrder(null);
+            console.log('result verify otp', result);
+            setVerifyOtpLoading(false);
+            setShowOtpBox(true);
+            await fetchCurrentOrder();
+            await fetchAssignments();
         } catch (error) {
-            setOtpError("otp verification error")
-                     setVerifyOtpLoading(false)
-            console.log(error)
+            setOtpError('otp verification error');
+            setVerifyOtpLoading(false);
+            console.log(error);
         }
+    };
+
+    if (!activeOrder && assignments?.length === 0) {
+        const todayEarning = [
+            { name: 'Today', earning: earning, deliveries: earning / 40 },
+        ];
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-white to-green-50 p-6">
+                <div className="max-w-md w-full text-center">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                        No Active Deliveries 🚚
+                    </h2>
+                    <p className="text-gray-500 mb-5">
+                        Stay online to recieve new orders
+                    </p>
+
+                    <div className="bg-white border rounded-xl shadow-xl p-6">
+                        <h2 className="font-medium text-green-700 mb-2">
+                            Today's Performance
+                        </h2>
+
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={todayEarning}>
+                                <XAxis dataKey="name" />
+                                <YAxis tickCount={4} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="earning" name="Earning ($)" />
+                                <Bar dataKey="deliveries" name="Deliveries" />
+                            </BarChart>
+                        </ResponsiveContainer>
+
+                        <p className="mt-4 text-lg font-bold text-green-700 ">
+                            {earning || 0} Earned today
+                        </p>
+                        <button
+                            className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg"
+                            onClick={() => window.location.reload()}
+                        >
+                            Refresh Earning
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (activeOrder && userLocation) {
@@ -186,47 +242,68 @@ function DeliveryBoyDashboard() {
                         deliveryBoyId={String(userData?._id!)}
                     />
 
+                    <div className="mt-6 bg-white rounded-xl border shadow p-6">
+                        {!activeOrder.order.deliveryOtpVerification &&
+                            !showOtpBox && (
+                                <button
+                                    onClick={sendOtp}
+                                    className="w-full  text-center py-4 bg-green-600 text-white rounded-lg flex items-center justify-center"
+                                >
+                                    {' '}
+                                    {sendOtpLoading ? (
+                                        <Loader
+                                            size={16}
+                                            className="animate-spin text-white "
+                                        />
+                                    ) : (
+                                        'Mark as Delivered'
+                                    )}{' '}
+                                </button>
+                            )}
 
-                    <div className='mt-6 bg-white rounded-xl border shadow p-6'>
-                        {
-                            !activeOrder.order.deliveryOtpVerification && !showOtpBox && (
-                                        <button 
-                                            onClick={sendOtp}
-                                        
-                                        className='w-full  text-center py-4 bg-green-600 text-white rounded-lg flex items-center justify-center'> {sendOtpLoading ? <Loader size={16} className='animate-spin text-white '/> : "Mark as Delivered"}  </button>
-                            )
-                        }
+                        {showOtpBox && (
+                            <div className="mt-4">
+                                <input
+                                    type="text"
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    value={otp}
+                                    className="w-full py-3 border rounded-lg text-center"
+                                    placeholder="Enter your otp"
+                                    maxLength={6}
+                                    minLength={6}
+                                />
+                                <button
+                                    className="w-full mt-2 bg-blue-600  text-center hover:bg-blue-700 text-white py-4 rounded-lg flex items-center justify-center"
+                                    onClick={verifyOtp}
+                                >
+                                    {' '}
+                                    {verifyOtpLoading ? (
+                                        <Loader
+                                            size={18}
+                                            className="animate-spin text-white  text-center"
+                                        />
+                                    ) : (
+                                        ' Verify Otp'
+                                    )}{' '}
+                                </button>
+                                {otpError && (
+                                    <div className="text-red-600 mt-2 text-xs ">
+                                        {otpError}
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
-
-                    {
-                        showOtpBox && (
-                         <div className='mt-4'>
-                            <input type="text" 
-                            onChange={(e)=>setOtp(e.target.value)}
-                            value={otp}
-                            className='w-full py-3 border rounded-lg text-center' placeholder='Enter your otp' maxLength={6}  minLength={6} />
-                            <button className='w-full mt-2 bg-blue-600  text-center hover:bg-blue-700 text-white py-4 rounded-lg flex items-center justify-center'
-                            onClick={verifyOtp}
-                            > {verifyOtpLoading ? <Loader size={18} className='animate-spin text-white  text-center'/> : " Verify Otp"}   </button>
-                            {otpError && <div className='text-red-600 mt-2 text-xs '>{otpError}</div>}
-                         </div>   
-                        )
-                    }
-
-
-                        {activeOrder.order.deliveryOtpVerification && <div className='text-green-700 text-center font-bold'>Delivery completed!</div>}
-
+                        {activeOrder.order.deliveryOtpVerification && (
+                            <div className="text-green-700 text-center font-bold">
+                                Delivery completed!
+                            </div>
+                        )}
                     </div>
-                
-                
-                
-                
                 </div>
             </div>
         );
     }
-
-
 
     return (
         <div className="w-full min-h-screen bg-gray-50 p-4">
