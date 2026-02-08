@@ -3,6 +3,7 @@ import AdminDashboard from '@/components/AdminDashboard';
 import DeliveryBoy from '@/components/DeliveryBoy';
 import DeliveryBoyDashboard from '@/components/DeliveryBoyDashboard';
 import EditRoleMobile from '@/components/EditRoleMobile';
+import Footer from '@/components/Footer';
 import GeoUpdater from '@/components/GeoUpdater';
 import Nav from '@/components/Nav';
 import UserDashboard from '@/components/UserDashboard';
@@ -16,7 +17,7 @@ async function Home(props: { searchParams: Promise<{ q: string }> }) {
     const searchParams = await props.searchParams;
     console.log(searchParams, 'searchParams');
     const session = await auth();
-    console.log('session ', session);
+
     const user = await User.findById(session?.user?.id);
     if (!user) {
         redirect('/login');
@@ -69,6 +70,7 @@ async function Home(props: { searchParams: Promise<{ q: string }> }) {
             ) : (
                 <DeliveryBoy />
             )}
+            <Footer userRole={session?.user?.role || null} />
         </>
     );
 }
