@@ -5,18 +5,18 @@ import { IUSER } from '@/model/user.model';
 import { RootState } from '@/redux/store';
 import axios from 'axios';
 import { ArrowLeft, Loader, Send, Sparkle } from 'lucide-react';
-import mongoose from 'mongoose';
+
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AnimatePresence, motion } from 'motion/react';
 import { IMessage } from '@/model/message.model';
 interface IOrder {
-    _id?: mongoose.Types.ObjectId;
-    user: mongoose.Types.ObjectId;
+    _id?: string;
+    user: string;
     items: [
         {
-            grocery: mongoose.Types.ObjectId;
+            grocery: string;
             name: string;
             price: string;
             unit: string;
@@ -37,7 +37,7 @@ interface IOrder {
         latitude: number;
         longitude: number;
     };
-    assignment?: mongoose.Types.ObjectId;
+    assignment?: string;
     assignedDeliveryBoy?: IUSER;
     status: 'pending' | 'out of delivery' | 'delivered';
     createdAt?: Date;

@@ -106,23 +106,21 @@ function ViewGrocery() {
         }
     };
 
+    useEffect(() => {
+        if (!search.trim()) {
+            setFiltered(groceries);
+            return;
+        }
 
-
-useEffect(() => {
-    if (!search.trim()) {
-        setFiltered(groceries);
-        return;
-    }
-
-    const q = search.toLowerCase();
-    setFiltered(
-        groceries?.filter(
-            (g) =>
-                g.name.toLowerCase().includes(q) ||
-                g.category.toLowerCase().includes(q)
-        )
-    );
-}, [search, groceries]);
+        const q = search.toLowerCase();
+        setFiltered(
+            groceries?.filter(
+                (g) =>
+                    g.name.toLowerCase().includes(q) ||
+                    g.category.toLowerCase().includes(q)
+            )
+        );
+    }, [search, groceries]);
 
     return (
         <div className="pt-4 w-[95%] md:w-[85%] mx-auto pb-20">
@@ -150,7 +148,7 @@ useEffect(() => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-              onSubmit={(e) => e.preventDefault()}
+                onSubmit={(e) => e.preventDefault()}
                 className="flex items-center bg-white border border-gray-200 rounded-full px-5 py-3 shadow-sm mb-10 hover:shadow-lg transition-all max-w-lg mx-auto w-full"
             >
                 <Search className="text-gray-500 w-5 h-5 mr-2" />

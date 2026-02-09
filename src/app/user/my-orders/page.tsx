@@ -6,16 +6,16 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import UserOrderCard from '@/components/UserOrderCard';
-import mongoose from 'mongoose';
+
 import { IUSER } from '@/model/user.model';
 import { getSocket } from '@/lib/socket';
 
 interface IOrder {
-    _id?: mongoose.Types.ObjectId;
-    user: mongoose.Types.ObjectId;
+    _id?: string;
+    user: string;
     items: [
         {
-            grocery: mongoose.Types.ObjectId;
+            grocery: string;
             name: string;
             price: string;
             unit: string;
@@ -36,7 +36,7 @@ interface IOrder {
         latitude: number;
         longitude: number;
     };
-    assignment?: mongoose.Types.ObjectId;
+    assignment?: string;
     assignedDeliveryBoy?: IUSER;
     status: 'pending' | 'out of delivery' | 'delivered';
     createdAt?: Date;
@@ -67,21 +67,20 @@ function MyOrders() {
         };
     }, []);
 
+    useEffect(() => {
+        const socket = getSocket();
+        socket.on('order-assigned', ({ orderId, assignedDeliveryBoy }) => {
+            setOrders((prev) =>
+                prev?.map((o) =>
+                    o._id === orderId ? { ...o, assignedDeliveryBoy } : o
+                )
+            );
+        });
 
-    useEffect(()=>{
-        const socket=getSocket()
-        socket.on("order-assigned",({orderId,assignedDeliveryBoy})=>{
-            setOrders((prev)=>prev?.map((o)=>(
-                o._id===orderId?{...o,assignedDeliveryBoy}:o
-            )))
-        })
-
-        return ()=>{
-            socket.off("order-assigned")
-        }
-    },[])
-
-
+        return () => {
+            socket.off('order-assigned');
+        };
+    }, []);
 
     if (loading) {
         return (

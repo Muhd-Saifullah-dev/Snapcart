@@ -1,8 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
-import mongoose from 'mongoose';
 
 interface IUSER {
-    _id?: mongoose.Schema.Types.ObjectId;
+    _id?: string;
     name: string;
     email: string;
     password?: string;

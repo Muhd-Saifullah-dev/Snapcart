@@ -15,16 +15,16 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import axios from 'axios';
-import mongoose from 'mongoose';
+
 import { IUSER } from '@/model/user.model';
 import { getSocket } from '@/lib/socket';
 
 interface IOrder {
-    _id?: mongoose.Types.ObjectId;
-    user: mongoose.Types.ObjectId;
+    _id?: string;
+    user: string;
     items: [
         {
-            grocery: mongoose.Types.ObjectId;
+            grocery: string;
             name: string;
             price: string;
             unit: string;
@@ -45,7 +45,7 @@ interface IOrder {
         latitude: number;
         longitude: number;
     };
-    assignment?: mongoose.Types.ObjectId;
+    assignment?: string;
     assignedDeliveryBoy?: IUSER;
     status: 'pending' | 'out of delivery' | 'delivered';
     createdAt?: Date;
@@ -74,29 +74,31 @@ function AdminOrderCard({ order }: { order: IOrder }) {
 
     useEffect(() => {
         setStatus(order.status);
-        console.log("order Id",order._id)
+        console.log('order Id', order._id);
     }, [order.status]);
 
-        useEffect(() => {
-            const socket = getSocket();
-            socket.on('order-status-update', (data) => {
-                console.log("data in status update",data)
-                console.log("card Id",order._id)
-                
-                // if (data.orderId.toString() === order?._id?.toString()) {
-                //     setStatus(data.status);
-                //     console.log("status in conditiion",data.status)
-                // }
-                  const currentOrderId = order._id?.toString();
-        const updatedOrderId = data.orderId?.toString();
-        
-        if (currentOrderId === updatedOrderId) {
-            setStatus(data.status);
-            console.log("status updated in realtime:", data.status);
-        }
-            });
-            return () => {socket.off('order-status-update')};
-        }, []);
+    useEffect(() => {
+        const socket = getSocket();
+        socket.on('order-status-update', (data) => {
+            console.log('data in status update', data);
+            console.log('card Id', order._id);
+
+            // if (data.orderId.toString() === order?._id?.toString()) {
+            //     setStatus(data.status);
+            //     console.log("status in conditiion",data.status)
+            // }
+            const currentOrderId = order._id?.toString();
+            const updatedOrderId = data.orderId?.toString();
+
+            if (currentOrderId === updatedOrderId) {
+                setStatus(data.status);
+                console.log('status updated in realtime:', data.status);
+            }
+        });
+        return () => {
+            socket.off('order-status-update');
+        };
+    }, []);
 
     return (
         <motion.div

@@ -7,11 +7,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { orderId: string } }
+    context: { params: Promise<{ orderId: string; }>; }
 ) {
     try {
         await connectDb();
-        const { orderId } = await params;
+        const { orderId } = await context.params;
         const { status } = await req.json();
         console.log(status);
         console.log(orderId);

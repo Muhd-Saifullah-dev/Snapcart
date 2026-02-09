@@ -2,8 +2,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
+
 import {
     CopyrightIcon,
     Facebook,

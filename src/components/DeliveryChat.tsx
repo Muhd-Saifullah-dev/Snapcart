@@ -1,13 +1,13 @@
 'use client';
 import { Loader, Send, Sparkle } from 'lucide-react';
-import mongoose from 'mongoose';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { getSocket } from '@/lib/socket';
 import { IMessage } from '@/model/message.model';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'motion/react';
 type TProps = {
-    orderId: mongoose.Types.ObjectId;
+    orderId: string;
     deliveryBoyId: string;
 };
 function DeliveryChat({ orderId, deliveryBoyId }: TProps) {

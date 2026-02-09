@@ -1,9 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import 'leaflet/dist/leaflet.css';
-import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
-import L, { LatLngExpression } from 'leaflet';
+
 import {
     ArrowLeft,
     Building,
@@ -24,12 +22,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import axios from 'axios';
 
-
-const markerIcon = new L.Icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-});
+import dynamic from 'next/dynamic';
+const CheckoutMap=dynamic(()=>import("@/components/CheckoutMap"),{ssr:false})
 
 function Checkout() {
     const router = useRouter();
@@ -72,27 +66,7 @@ function Checkout() {
         }
     }, [userData]);
 
-    const DraggableMarker: React.FC = () => {
-        const map = useMap();
-        useEffect(() => {
-            map.setView(position as LatLngExpression, 16, { animate: true });
-        }, [position, map]);
-
-        return (
-            <Marker
-                icon={markerIcon}
-                position={position as LatLngExpression}
-                draggable={true}
-                eventHandlers={{
-                    dragend: (e: L.LeafletEvent) => {
-                        const marker = e.target as L.Marker;
-                        const { lat, lng } = marker.getLatLng();
-                        setPosition([lat, lng]);
-                    },
-                }}
-            />
-        );
-    };
+ 
 
     useEffect(() => {
         if (!position) return;
@@ -385,18 +359,7 @@ function Checkout() {
                         {/* map div  */}
                         <div className="relative mt-6 h-[330px] rounded-xl overflow-hidden border border-gray-200 shadow-inner">
                             {position && (
-                                <MapContainer
-                                    center={position as LatLngExpression}
-                                    zoom={13}
-                                    scrollWheelZoom={true}
-                                    className="w-full h-full"
-                                >
-                                    <TileLayer
-                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    />
-                                    <DraggableMarker />
-                                </MapContainer>
+                           <CheckoutMap position={position} setPosition={setPosition}/>
                             )}
                             <motion.button
                                 onClick={handleCurrentLocation}

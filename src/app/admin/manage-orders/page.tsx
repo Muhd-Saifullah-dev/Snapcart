@@ -6,15 +6,15 @@ import axios from 'axios';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import mongoose from 'mongoose';
+
 import { IUSER } from '@/model/user.model';
 
 interface IOrder {
-    _id?: mongoose.Types.ObjectId;
-    user: mongoose.Types.ObjectId;
+    _id?: string;
+    user: string;
     items: [
         {
-            grocery: mongoose.Types.ObjectId;
+            grocery: string;
             name: string;
             price: string;
             unit: string;
@@ -35,7 +35,7 @@ interface IOrder {
         latitude: number;
         longitude: number;
     };
-    assignment?: mongoose.Types.ObjectId;
+    assignment?: string;
     assignedDeliveryBoy?: IUSER;
     status: 'pending' | 'out of delivery' | 'delivered';
     createdAt?: Date;
@@ -61,20 +61,23 @@ function ManageOrders() {
         };
     }, []);
 
-    useEffect(()=> {
+    useEffect(() => {
         const socket = getSocket();
         socket.on('new-order', (newOrder) => {
             setOrders((prev) => [newOrder, ...prev!]);
         });
 
-        socket.on("order-assigned",({orderId,assignedDeliveryBoy})=>{
-               setOrders((prev)=>prev?.map((o)=>(
-                o._id===orderId?{...o,assignedDeliveryBoy}:o
-            )))
-        })
+        socket.on('order-assigned', ({ orderId, assignedDeliveryBoy }) => {
+            setOrders((prev) =>
+                prev?.map((o) =>
+                    o._id === orderId ? { ...o, assignedDeliveryBoy } : o
+                )
+            );
+        });
 
-        return () => {socket.off('new-order')
-            socket.off("order-assigned")
+        return () => {
+            socket.off('new-order');
+            socket.off('order-assigned');
         };
     }, []);
     return (
@@ -96,7 +99,10 @@ function ManageOrders() {
             <div className="max-w-6xl mx-auto px-4 pt-24 pb-16 space-y-8">
                 <div className="space-y-6">
                     {orders?.map((order, index) => (
-                        <AdminOrderCard key={order._id?.toString()} order={order} />
+                        <AdminOrderCard
+                            key={order._id?.toString()}
+                            order={order}
+                        />
                     ))}
                 </div>
             </div>
